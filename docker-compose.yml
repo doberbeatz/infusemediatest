@@ -1,0 +1,31 @@
+version: '2'
+services:
+    backend:
+        container_name: lamp_backend
+        image: php:7.1-fpm
+        volumes:
+            - ./src:/code
+        links:
+            - db
+        env_file:
+            - .env
+        command: bash -c "docker-php-ext-install mysqli && php-fpm"
+    static:
+        container_name: lamp_static
+        image: nginx
+        volumes:
+            - ./src:/code
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+        ports:
+            - 80:80
+        links:
+            - backend
+        depends_on:
+            - backend
+    db:
+        container_name: lamp_db
+        image: mysql
+        ports:
+            - 3306:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
